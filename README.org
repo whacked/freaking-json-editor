@@ -1,0 +1,11 @@
+#+TITLE: a freaking json editor
+
+* a freaking json editor
+
+that does nothing but display and edit json because why should it do anything else!?
+
+depends: jquery
+
+[[https://whacked.github.io/freaking-json-editor/][demo]]
+
+WTFPL
