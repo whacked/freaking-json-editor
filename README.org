@@ -9,3 +9,13 @@ depends: jquery
 [[https://whacked.github.io/freaking-json-editor/][demo]]
 
 WTFPL
+
+* development
+
+  done on emacs 24 with skewer-mode and wispjs-mode
+
+  see https://github.com/Gozala/wisp for wisp usage
+  
+  see https://github.com/whacked/wispjs-mode for live reload
+
+  
