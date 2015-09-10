@@ -1,6 +1,3 @@
-;; (ns editor.main
-;;   (:require [wisp.core]))
-
 (let [
       key-class "key"
       val-class "value"
@@ -23,25 +20,26 @@
                       ($ "<ol>" {:start 0
                                  :class ls-class})
                       ($ "<div>" {:class kv-class}))]
-      ($.each
-       obj
-       (fn [k v]
-         (let [row (if is-array?
-                     (-> ($ "<li>"))
-                     (-> ($ "<div>" {:class "item"})
-                         (.append (-> ($ "<input>"
-                                         {:type "text"
-                                          :class key-class})
-                                      (.val k)))))]
-           (-> container
-               (.append row))
-           (if (identical? (typeof v) "object")
-             (gen-editor row v)
-             (.append row (-> ($ "<input>"
-                                 {:type "text"
-                                  :class (+ val-class " " (typeof v))})
-                              (.val v))))
-           (.append parent container))))))
+      (.append parent container)
+      (if obj
+        ($.each
+         obj
+         (fn [k v]
+           (let [row (if is-array?
+                       (-> ($ "<li>"))
+                       (-> ($ "<div>" {:class "item"})
+                           (.append (-> ($ "<input>"
+                                           {:type "text"
+                                            :class key-class})
+                                        (.val k)))))]
+             (-> container
+                 (.append row))
+             (if (identical? (typeof v) "object")
+               (gen-editor row v)
+               (.append row (-> ($ "<input>"
+                                   {:type "text"
+                                    :class (+ val-class " " (typeof v))})
+                                (.val v))))))))))
 
   ;; don't know whether the full traversal is necessary
   ;; but $.closest() traverses up, and there doesn't seem
@@ -88,8 +86,9 @@
                   ;; the first input to be hit during the loop,
                   ;; for a non-array, must be a key. we then
                   ;; expect the remainder to be exactly length 1
-                  (set! (aget rtn el-val)
-                        (form-to-json ($ (aget el-arr 1)) nil)))
+                  (let [next (aget el-arr 1)]
+                    (set! (aget rtn el-val)
+                          (form-to-json ($ next) nil))))
                 
                 ;; ELSE
                 ;; not input, traverse deeper
@@ -136,8 +135,10 @@
                             :b {:foo "bar"
                                 :baz "quux"}
                             1 "some number"
-                            "x" [1 2 3]
-
+                            "x" [1 2 3 4]
+                            "None" (eval "null")
+                            :emptylist []
+                            :emptyobj {}
                             "y" {
                                  :nested "map"
 
