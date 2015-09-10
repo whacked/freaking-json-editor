@@ -1,7 +1,5 @@
 #+TITLE: a freaking json editor
 
-* a freaking json editor
-
 that does nothing but display and edit json because why should it do anything else!?
 
 depends: jquery
@@ -9,6 +7,24 @@ depends: jquery
 [[https://whacked.github.io/freaking-json-editor/][demo]]
 
 WTFPL
+
+* (current) usage
+
+is a jQuery plugin.
+
+inject a side by side view:
+
+#+BEGIN_SRC javascript :eval never
+$("#container").json_editor();
+#+END_SRC
+
+supply a =textarea=:
+
+#+BEGIN_SRC javascript :eval never
+$("#container").json_editor({text: "#text"});
+#+END_SRC
+
+the =textarea= should have json inside it
 
 * development
 
