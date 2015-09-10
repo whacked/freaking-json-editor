@@ -8,6 +8,10 @@
     border: 1px solid #999;
     border-left: 10px solid #999;
 }
+.value.boolean {
+    border: 1px solid #F99;
+    border-left: 10px solid #F99;
+}
 
 
 div.viewer-main {
