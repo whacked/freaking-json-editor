@@ -46,10 +46,14 @@ div.item {
     padding: 2px;
 }
 
-div.null {
-    background: #CCC;
-    margin: 1px;
-    border: 1px solid #999;
+.null {
+    background: #FFF;
+    margin: 1px 1px 1px 1em;
+    border: 1px solid #CCC;
+    border-radius: 0.5em;
+    width: 3em;
+    height: 0.7em;
+    display: inline-block;
 }
 div.kv {
     background: #EFE;
