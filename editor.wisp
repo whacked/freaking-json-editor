@@ -1,9 +1,12 @@
+(def js-null (eval "null"))
 (let [
       key-class "key"
       val-class "value"
       
       ls-class "ls"
       kv-class "kv"
+
+      null-class "null"
       ]
   (defmacro ->
     [& operations]
@@ -16,10 +19,13 @@
   
   (defn gen-editor [parent obj]
     (let [is-array? (Array.isArray obj)
+          is-null? (identical? obj js-null)
           container (if is-array?
                       ($ "<ol>" {:start 0
                                  :class ls-class})
-                      ($ "<div>" {:class kv-class}))]
+                      (if is-null?
+                        ($ "<div>" {:class null-class})
+                        ($ "<div>" {:class kv-class})))]
       (.append parent container)
       (if obj
         ($.each
@@ -61,10 +67,13 @@
         (.val $domel))
       (let [
             rtn (or rtn
-                    (let [ls-dist (get-child-distance $domel ls-class)
-                          kv-dist (get-child-distance $domel kv-class)]
-                      (if (< ls-dist kv-dist)
-                        [] {})))
+                    ;; poor man cond
+                    (-> [[(get-child-distance $domel ls-class) []]
+                         [(get-child-distance $domel kv-class) {}]
+                         [(get-child-distance $domel null-class) js-null]]
+                        (.sort)
+                        (aget 0)
+                        (aget 1)))
             pushing-to-array? (Array.isArray rtn)
             ]
         ;; reason we use loop here, is because when we hit an input that is a key,
@@ -136,7 +145,7 @@
                                 :baz "quux"}
                             1 "some number"
                             "x" [1 2 3 4]
-                            "None" (eval "null")
+                            "None" js-null
                             :emptylist []
                             :emptyobj {}
                             "y" {
