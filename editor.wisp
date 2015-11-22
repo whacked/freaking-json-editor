@@ -61,57 +61,71 @@
         (Math.min.apply nil dist-ls))))
 
   (defn form-to-json [$domel rtn]
-    (if (identical? (.prop $domel "tagName") "INPUT")
+    ;; better off a cond but for now,
+    ;; 1. if INPUT, return the typed value it contains
+    ;; 2. if null, return null -- niche case
+    ;; 3. process potential children
+    (if (identical? (.prop $domel :tagName) "INPUT")
+      ;; get value
       (if (.hasClass $domel "number")
         (parseInt (.val $domel))
         (.val $domel))
-      (let [
-            rtn (or rtn
-                    ;; poor man cond
-                    (-> [[(get-child-distance $domel ls-class) []]
-                         [(get-child-distance $domel kv-class) {}]
-                         [(get-child-distance $domel null-class) js-null]]
-                        (.sort)
-                        (aget 0)
-                        (aget 1)))
-            pushing-to-array? (Array.isArray rtn)
-            ]
-        ;; reason we use loop here, is because when we hit an input that is a key,
-        ;; we want to "store" the key and move on, but do it functionally
-        (loop [el-arr (.children $domel)
-               key nil]
-          (if (< 0 (aget el-arr "length"))
-            (let [$el ($ (aget el-arr 0))
-                  el-val (.val $el)
-                  el-tag (.prop $el "tagName")]
+      
+      (if (.hasClass $domel null-class)
+        ;; niche case of null
+        js-null
 
-              (if (identical? el-tag "INPUT")
-                
-                ;; TRUE
-                (if pushing-to-array?
+        ;; potential children
+        (let [rtn (or rtn
+                      ;; most likely one is the one with minimum distance
+                      (-> [[(get-child-distance $domel ls-class) []]
+                           [(get-child-distance $domel kv-class) {}]]
+                          (.sort)
+                          (aget 0)
+                          (aget 1)))
+              pushing-to-array? (Array.isArray rtn)]
+          ;; reason we use loop here, is because when we hit an input that is a key,
+          ;; we want to "store" the key and move on, but do it functionally
+          (loop [el-arr (.children $domel)
+                 key nil]
+            (if (< 0 (aget el-arr "length"))
+              (let [$el ($ (aget el-arr 0))
+                    el-val (.val $el)
+                    el-tag (.prop $el :tagName)]
+
+                (if (identical? el-tag "INPUT")
                   
-                  (.push rtn (form-to-json $el))
-                  
-                  ;; the first input to be hit during the loop,
-                  ;; for a non-array, must be a key. we then
-                  ;; expect the remainder to be exactly length 1
-                  (let [next (aget el-arr 1)]
-                    (set! (aget rtn el-val)
-                          (form-to-json ($ next) nil))))
-                
-                ;; ELSE
-                ;; not input, traverse deeper
-                (let []
-                  (if (and pushing-to-array?
-                           (.hasClass $el kv-class))
-                    ;; TRUE
-                    ;; next is a member of the list, and the member is an object
-                    (.push rtn (form-to-json $el nil))
-                    ;; next is an object at the same level
-                    ;; ELSE
-                    (form-to-json $el rtn))
-                  (recur (.slice el-arr 1) key))))))
-        rtn)))
+                  ;; TRUE
+                  (if pushing-to-array?
+                    
+                    (.push rtn (form-to-json $el))
+                    
+                    ;; the first input to be hit during the loop,
+                    ;; for a non-array, must be a key. we then
+                    ;; expect the remainder to be exactly length 1
+                    (let [next (aget el-arr 1)]
+                      (set! (aget rtn el-val)
+                            (form-to-json ($ next) nil))))
+
+                  ;; ELSE
+                  ;; not input, traverse deeper
+                  (let []
+                    ;; another ugly 3-way cond replacement;
+                    ;; we're handling 2 cases within push to array,
+                    ;; that of null, vs that of kv. TODO: beautify
+                    (if (and pushing-to-array?
+                             (.hasClass $el null-class))
+                      (.push rtn (form-to-json $el js-null))
+                      (if (and pushing-to-array?
+                               (.hasClass $el kv-class))
+                        ;; TRUE
+                        ;; next is a member of the list, and the member is an object
+                        (.push rtn (form-to-json $el nil))
+                        ;; next is an object at the same level
+                        ;; ELSE
+                        (form-to-json $el rtn)))
+                    (recur (.slice el-arr 1) key))))))
+          rtn))))
   
   ((fn [$]
      
@@ -148,6 +162,7 @@
                             "None" js-null
                             :emptylist []
                             :emptyobj {}
+                            :listwithnull [js-null js-null]
                             "y" {
                                  :nested "map"
 
