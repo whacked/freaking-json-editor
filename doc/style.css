@@ -1,5 +1,6 @@
 .value {
     padding-left: 2px;
+    vertical-align: top;
 }
 .value.number {
     border: 1px solid #9F9;
@@ -8,6 +9,8 @@
 .value.string {
     border: 1px solid #999;
     border-left: 10px solid #999;
+    height: 1em;
+    margin: 0 0 0 4px;
 }
 .value.boolean {
     border: 1px solid #F99;
@@ -29,7 +32,7 @@ div.viewer-cell {
     vertical-align: top;
 }
 
-div.viewer-main textarea {
+div.viewer-main textarea.editor {
     font-size: 8pt;
     width: 100%;
     height: 100%;

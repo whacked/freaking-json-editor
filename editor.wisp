@@ -42,9 +42,12 @@
                  (.append row))
              (if (identical? (typeof v) "object")
                (gen-editor row v)
-               (.append row (-> ($ "<input>"
-                                   {:type "text"
-                                    :class (+ val-class " " (typeof v))})
+               (.append row (-> (if (identical? (typeof v) "string")
+                                  ($ "<textarea>"
+                                     {:class (+ val-class " " (typeof v))})
+                                  ($ "<input>"
+                                     {:type "text"
+                                      :class (+ val-class " " (typeof v))}))
                                 (.val v))))))))))
 
   ;; don't know whether the full traversal is necessary
@@ -138,7 +141,7 @@
 
                    ta (if is-custom-text?
                         ($ (aget opt "text"))
-                        ($ "<textarea>"))
+                        ($ "<textarea>" {:class "editor"}))
                    ]
                
                (if is-custom-text?
